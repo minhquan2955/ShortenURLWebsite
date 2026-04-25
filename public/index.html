@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+    <title>Giao diện Rút gọn URL</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1 class="header-title">Shorten a long link</h1>
+        <p class="sub-text">No credit card required.</p>
+
+        <div class="card-content">
+          <div class="left-panel">
+            <div class="input-group">
+              <label for="url-input">Paste your long link here</label>
+              <input
+                type="url"
+                id="url-input"
+                class="url-input"
+                placeholder="https://example.com/my-long-url"
+              />
+              <p id="url-error" class="error-text" style="display: none"></p>
+            </div>
+
+            <!-- Nút Switch tạo QR -->
+            <div class="toggle-group">
+              <label class="switch">
+                <input type="checkbox" id="qr-toggle" />
+                <span class="slider"></span>
+              </label>
+              <label for="qr-toggle" class="toggle-label-text"
+                >Tạo mã QR kèm theo</label
+              >
+            </div>
+
+            <button class="submit-btn" type="button">
+              Get your link for free <span>&rarr;</span>
+            </button>
+          </div>
+
+          <div class="right-panel">
+            <div
+              id="result-container"
+              style="display: none; text-align: center; width: 100%"
+            >
+              <p
+                style="
+                  margin-bottom: 10px;
+                  font-weight: 600;
+                  color: var(--text-dark);
+                "
+              >
+                Shortened URL:<br />
+                <a
+                  id="short-url"
+                  href="#"
+                  target="_blank"
+                  style="
+                    color: var(--primary-color);
+                    word-break: break-all;
+                    text-decoration: none;
+                    font-size: 18px;
+                  "
+                ></a>
+              </p>
+              <img
+                id="qr-code-img"
+                src=""
+                alt="QR Code"
+                style="
+                  display: none;
+                  margin: 15px auto 0;
+                  max-width: 180px;
+                  border-radius: 12px;
+                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                "
+              />
+            </div>
+            <div
+              id="result-placeholder"
+              style="
+                text-align: center;
+                color: var(--text-gray);
+                font-size: 15px;
+                width: 100%;
+              "
+            >
+              <p>Get your short link here</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>

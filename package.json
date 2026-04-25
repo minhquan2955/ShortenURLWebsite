@@ -1,0 +1,24 @@
+{
+  "name": "shortenurlwebsite",
+  "version": "1.0.0",
+  "description": "a website shorten URL",
+  "license": "MIT",
+  "author": "MinhQuan",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node --watch --env-file=.env server"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "express": "^5.2.1",
+    "pg": "^8.20.0",
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "prisma": "^7.8.0"
+  }
+}
