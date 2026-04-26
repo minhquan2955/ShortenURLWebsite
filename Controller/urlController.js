@@ -4,6 +4,7 @@ const { Pool } = pg;
 import { PrismaClient } from "../generated/prisma/index.js";
 import crypto from "crypto";
 import QRCode from "qrcode";
+
 const connectionString = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
