@@ -3,41 +3,53 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Shorten any long URL into a compact, shareable link. Generate QR codes instantly. Fast, free, and secure."
+    />
     <link rel="stylesheet" href="style.css" />
-    <title>Giao diện Rút gọn URL</title>
+    <title>Shorten Links Instantly</title>
   </head>
   <body>
-    <div class="container">
+    <!-- Hero — Dark Tile -->
+    <section class="hero">
+      <h1 class="hero-headline">Shorten a long link.</h1>
+      <p class="hero-tagline">Free forever. No sign-up required.</p>
+    </section>
+
+    <!-- Main — Parchment Tile -->
+    <section class="main-section">
       <div class="card">
-        <h1 class="header-title">Shorten a long link</h1>
-        <p class="sub-text">No credit card required.</p>
+        <h2 class="section-title">Create a short URL</h2>
 
         <div class="card-content">
           <div class="left-panel">
             <div class="input-group">
-              <label for="url-input">Paste your long link here</label>
+              <label for="url-input">Your long link</label>
               <input
                 type="url"
                 id="url-input"
                 class="url-input"
                 placeholder="https://example.com/my-long-url"
+                autocomplete="off"
+                spellcheck="false"
               />
               <p id="url-error" class="error-text" style="display: none"></p>
             </div>
 
-            <!-- Nút Switch tạo QR -->
+            <!-- Toggle QR -->
             <div class="toggle-group">
               <label class="switch">
                 <input type="checkbox" id="qr-toggle" />
                 <span class="slider"></span>
               </label>
               <label for="qr-toggle" class="toggle-label-text"
-                >Make a QR code</label
+                >Generate QR Code</label
               >
             </div>
 
             <button class="submit-btn" type="button">
-              Get your link for free <span>&rarr;</span>
+              Get your link <span>&rarr;</span>
             </button>
           </div>
 
@@ -46,54 +58,42 @@
               id="result-container"
               style="display: none; text-align: center; width: 100%"
             >
-              <p
-                style="
-                  margin-bottom: 10px;
-                  font-weight: 600;
-                  color: var(--text-dark);
-                "
-              >
-                Shortened URL:<br />
-                <a
-                  id="short-url"
-                  href="#"
-                  target="_blank"
-                  style="
-                    color: var(--primary-color);
-                    word-break: break-all;
-                    text-decoration: none;
-                    font-size: 18px;
-                  "
-                ></a>
-              </p>
+              <p class="result-label">Shortened URL</p>
+              <a
+                id="short-url"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+              ></a>
               <img
                 id="qr-code-img"
                 src=""
                 alt="QR Code"
-                style="
-                  display: none;
-                  margin: 15px auto 0;
-                  max-width: 180px;
-                  border-radius: 12px;
-                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                "
+                style="display: none"
               />
             </div>
-            <div
-              id="result-placeholder"
-              style="
-                text-align: center;
-                color: var(--text-gray);
-                font-size: 15px;
-                width: 100%;
-              "
-            >
-              <p>Get your short link here</p>
+            <div id="result-placeholder">
+              <p>Your short link will appear here.</p>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- Footer — Parchment -->
+    <footer class="footer">
+      <p>
+        Built by
+        <a
+          href="https://github.com/minhquan2955"
+          target="_blank"
+          rel="noopener noreferrer"
+          >MinhQuan</a
+        >
+        · ShortenURL
+      </p>
+    </footer>
+
     <script src="script.js"></script>
   </body>
 </html>
