@@ -22,42 +22,52 @@ A fast, modern URL shortening service built with **Node.js**, **Express 5**, **P
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture (MVC)
 
 ```
 Client (Browser / Postman)
         │
         ▼
-   Express Server (port 8000)
+   Express Server (server.js)
         │
-        ├── POST /shorten ──► Create short URL + optional QR code
+        ▼
+   Router ──────────────── Route request
+        │
+        ├── POST /shorten
         │       │
-        │       ├── Rate Limiter (Redis-backed)
-        │       └── Save to PostgreSQL (via Prisma)
+        │       ├── Middleware (Rate Limiter — Redis-backed)
+        │       │
+        │       └── Controller (createShortUrl)
+        │               │
+        │               └── Model (urlModel → Prisma + Redis)
         │
-        └── GET /:shortCode ──► Redirect to original URL
+        └── GET /:shortCode
                 │
-                ├── 1. Check Redis Cache (fast path)
-                │       └── Hit? → redirect immediately
-                │
-                └── 2. Query PostgreSQL (slow path)
-                        └── Found? → cache in Redis → redirect
+                └── Controller (getOriginalUrl)
+                        │
+                        └── Model (updateAccessCounter)
+                                │
+                                ├── 1. Check Redis Cache (fast path)
+                                │       └── Hit? → return URL immediately
+                                │
+                                └── 2. Query PostgreSQL (slow path)
+                                        └── Found? → cache in Redis → return URL
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer          | Technology                                                       |
-| -------------- | ---------------------------------------------------------------- |
-| **Runtime**    | Node.js (ES Modules)                                             |
-| **Framework**  | Express 5                                                        |
-| **Database**   | PostgreSQL                                                       |
-| **ORM**        | Prisma 7 (with `@prisma/adapter-pg`)                             |
-| **Cache**      | Redis 5+                                                         |
-| **Rate Limit** | `express-rate-limit` + `rate-limit-redis`                        |
-| **QR Code**    | `qrcode` (generates base64 Data URL)                             |
-| **Frontend**   | Vanilla HTML / CSS / JavaScript                                  |
+| Layer          | Technology                                |
+| -------------- | ----------------------------------------- |
+| **Runtime**    | Node.js (ES Modules)                      |
+| **Framework**  | Express 5                                 |
+| **Database**   | PostgreSQL                                |
+| **ORM**        | Prisma 7 (with `@prisma/adapter-pg`)      |
+| **Cache**      | Redis 5+                                  |
+| **Rate Limit** | `express-rate-limit` + `rate-limit-redis` |
+| **QR Code**    | `qrcode` (generates base64 Data URL)      |
+| **Frontend**   | Vanilla HTML / CSS / JavaScript           |
 
 ---
 
@@ -65,22 +75,28 @@ Client (Browser / Postman)
 
 ```
 ShortenURLWebsite/
-├── Controller/
-│   └── urlController.js      # Business logic (shorten, redirect, caching)
-├── Router/
-│   └── route.js               # API routes & rate limiter config
-├── public/
-│   ├── index.html             # Frontend UI
-│   ├── style.css              # Styling
-│   └── script.js              # Client-side logic (fetch API calls)
+├── Model/                         # ── Model Layer ──
+│   ├── prismaClient.js            # Prisma + PostgreSQL connection
+│   ├── redisClient.js             # Redis client connection
+│   └── urlModel.js                # Data access logic (CRUD + caching)
+├── Controller/                    # ── Controller Layer ──
+│   └── urlController.js           # Request/Response handling
+├── Router/                        # ── Routing Layer ──
+│   └── url.js                     # API route definitions
+├── Middleware/                    # ── Middleware Layer ──
+│   └── rateLimiter.js             # Rate limiting config (Redis-backed)
+├── public/                        # ── View Layer ──
+│   ├── index.html                 # Frontend UI
+│   ├── style.css                  # Styling
+│   └── script.js                  # Client-side logic (fetch API calls)
 ├── prisma/
-│   ├── schema.prisma          # Database schema definition
-│   └── migrations/            # Auto-generated migration files
+│   ├── schema.prisma              # Database schema definition
+│   └── migrations/                # Auto-generated migration files
 ├── generated/
-│   └── prisma/                # Auto-generated Prisma Client
-├── server.js                  # Express app entry point
-├── prisma.config.ts           # Prisma CLI configuration
-├── .env                       # Environment variables (not committed)
+│   └── prisma/                    # Auto-generated Prisma Client
+├── server.js                      # Express app entry point
+├── prisma.config.ts               # Prisma CLI configuration
+├── .env                           # Environment variables (not committed)
 ├── .gitignore
 ├── package.json
 └── README.md
@@ -160,10 +176,10 @@ Content-Type: application/json
 }
 ```
 
-| Field         | Type      | Required | Description                          |
-| ------------- | --------- | -------- | ------------------------------------ |
-| `originalURL` | `string`  | ✅ Yes    | The long URL to shorten              |
-| `generateQR`  | `boolean` | ❌ No     | Set to `true` to generate a QR code  |
+| Field         | Type      | Required | Description                         |
+| ------------- | --------- | -------- | ----------------------------------- |
+| `originalURL` | `string`  | ✅ Yes   | The long URL to shorten             |
+| `generateQR`  | `boolean` | ❌ No    | Set to `true` to generate a QR code |
 
 **Response (`201 Created`):**
 
@@ -220,11 +236,11 @@ model Url {
 
 ## ⚡ Caching Strategy
 
-| Scenario              | Flow                                                              |
-| --------------------- | ----------------------------------------------------------------- |
-| **Cache Hit**         | Redis → redirect immediately (fire-and-forget DB counter update)  |
-| **Cache Miss**        | PostgreSQL → store in Redis (TTL: 3 hours) → redirect             |
-| **Not Found**         | Return `404`                                                      |
+| Scenario       | Flow                                                             |
+| -------------- | ---------------------------------------------------------------- |
+| **Cache Hit**  | Redis → redirect immediately (fire-and-forget DB counter update) |
+| **Cache Miss** | PostgreSQL → store in Redis (TTL: 3 hours) → redirect            |
+| **Not Found**  | Return `404`                                                     |
 
 Redis keys follow the pattern `cache:url:<shortCode>` with a **3-hour TTL** (`10800` seconds).
 

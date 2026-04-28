@@ -1,12 +1,6 @@
-import express from "express";
-import {
-  createShortUrl,
-  getOriginalUrl,
-  client,
-} from "../Controller/urlController.js";
 import { rateLimit } from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
-const router = express.Router();
+import client from "../Model/redisClient.js";
 
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 minutes
@@ -23,10 +17,5 @@ const limiter = rateLimit({
     error: "Too many short URLs created! Please try again later.",
   },
 });
-//Create short URL/QrCode
-router.post("/shorten", limiter, createShortUrl); //Put rate limit for POST request
 
-//Get original Url
-router.get("/:shortCode", getOriginalUrl);
-
-export default router;
+export default limiter;
