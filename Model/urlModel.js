@@ -36,5 +36,7 @@ const updateAccessCounter = async (shortCode) => {
   //Not Found
   return null;
 };
-
-export { createNewUrl, updateAccessCounter };
+const check = async () => {
+  return await prisma.$queryRaw`SELECT 1`;
+};
+export { createNewUrl, updateAccessCounter, check };

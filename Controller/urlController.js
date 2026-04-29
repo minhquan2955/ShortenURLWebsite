@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import QRCode from "qrcode";
-import { createNewUrl, updateAccessCounter } from "../Model/urlModel.js";
+import { createNewUrl, updateAccessCounter, check } from "../Model/urlModel.js";
 const generateCode = () => crypto.randomBytes(4).toString("base64url");
 const createShortUrl = async (req, res) => {
   try {
@@ -36,10 +36,11 @@ const getOriginalUrl = async (req, res) => {
 
 const checkHealth = async (req, res) => {
   try {
-    await prisma.$queryRaw`SELECT 1`;
+    await check();
     res.status(200).json({ status: "active", database: "connected" });
   } catch (error) {
-    res.status(500).json({ status: "error", database: "disconnected" });
+    console.error("Health check failed:", error);
+    res.status(500).json({ status: "error", database: "disconnected", details: error.message });
   }
 };
 export { createShortUrl, getOriginalUrl, checkHealth };
