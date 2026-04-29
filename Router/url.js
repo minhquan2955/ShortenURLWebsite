@@ -1,5 +1,9 @@
 import express from "express";
-import { createShortUrl, getOriginalUrl } from "../Controller/urlController.js";
+import {
+  createShortUrl,
+  getOriginalUrl,
+  checkHealth,
+} from "../Controller/urlController.js";
 import limiter from "../Middleware/rateLimiter.js";
 const router = express.Router();
 
@@ -9,4 +13,6 @@ router.post("/shorten", limiter, createShortUrl); //Put rate limit for POST requ
 //Get original Url
 router.get("/:shortCode", getOriginalUrl);
 
+//Maintain Supabase and Render work
+router.get("/health", checkHealth);
 export default router;
