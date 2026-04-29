@@ -10,7 +10,7 @@ const createShortUrl = async (req, res) => {
     }
     const shortCode = generateCode();
     const result = await createNewUrl(originalURL, shortCode);
-    const shortUrl = `https://awesomeUrl/${result.shortCode}`;
+    const shortUrl = `https://awesomeurl/${result.shortCode}`;
     const responseObj = { shortUrl };
     if (generateQR === true) {
       responseObj.qrCode = await QRCode.toDataURL(originalURL);
