@@ -26,7 +26,7 @@ const getOriginalUrl = async (req, res) => {
     const { shortCode } = req.params;
     const result = await updateAccessCounter(shortCode);
     if (result) {
-      res.redirect(301, result.originalURL);
+      return res.redirect(301, result.originalURL);
     }
     res.status(404).send("URL not found");
   } catch (error) {
