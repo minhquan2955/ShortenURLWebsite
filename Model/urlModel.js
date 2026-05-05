@@ -36,7 +36,21 @@ const updateAccessCounter = async (shortCode) => {
   //Not Found
   return null;
 };
+const updateAccessCounterNoCache = async (shortCode) => {
+  const record = await prisma.url.findUnique({
+    where: { shortCode },
+  });
+  if (record) {
+    await prisma.url.update({
+      where: { id: record.id },
+      data: { accessCounter: { increment: 1 } },
+    });
+    return { originalURL: record.originalURL };
+  }
+  //Not Found
+  return null;
+};
 const check = async () => {
   return await prisma.$queryRaw`SELECT 1`;
 };
-export { createNewUrl, updateAccessCounter, check };
+export { createNewUrl, updateAccessCounter, updateAccessCounterNoCache, check };

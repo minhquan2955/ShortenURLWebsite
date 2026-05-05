@@ -1,6 +1,11 @@
 import crypto from "crypto";
 import QRCode from "qrcode";
-import { createNewUrl, updateAccessCounter, check } from "../Model/urlModel.js";
+import {
+  createNewUrl,
+  updateAccessCounter,
+  updateAccessCounterNoCache,
+  check,
+} from "../Model/urlModel.js";
 const generateCode = () => crypto.randomBytes(4).toString("base64url");
 const createShortUrl = async (req, res) => {
   try {
@@ -40,7 +45,11 @@ const checkHealth = async (req, res) => {
     res.status(200).json({ status: "active", database: "connected" });
   } catch (error) {
     console.error("Health check failed:", error);
-    res.status(500).json({ status: "error", database: "disconnected", details: error.message });
+    res.status(500).json({
+      status: "error",
+      database: "disconnected",
+      details: error.message,
+    });
   }
 };
 export { createShortUrl, getOriginalUrl, checkHealth };
