@@ -1,13 +1,28 @@
 import crypto from "crypto";
 import QRCode from "qrcode";
+import type { Request, Response } from "express";
 import {
   createNewUrl,
   updateAccessCounter,
-  updateAccessCounterNoCache,
   check,
 } from "../Model/urlModel.js";
-const generateCode = () => crypto.randomBytes(4).toString("base64url");
-const createShortUrl = async (req, res) => {
+
+interface CreateShortUrlRequestBody {
+  originalURL?: string;
+  generateQR?: boolean;
+}
+
+interface ResponseObj {
+  shortUrl: string;
+  qrCode?: string;
+}
+
+const generateCode = (): string => crypto.randomBytes(4).toString("base64url");
+
+const createShortUrl = async (
+  req: Request<{}, {}, CreateShortUrlRequestBody>,
+  res: Response
+): Promise<Response | void> => {
   try {
     const { originalURL, generateQR } = req.body;
     if (!originalURL) {
@@ -16,7 +31,7 @@ const createShortUrl = async (req, res) => {
     const shortCode = generateCode();
     const result = await createNewUrl(originalURL, shortCode);
     const shortUrl = `${req.protocol}://${req.get("host")}/${result.shortCode}`;
-    const responseObj = { shortUrl };
+    const responseObj: ResponseObj = { shortUrl };
     if (generateQR === true) {
       responseObj.qrCode = await QRCode.toDataURL(originalURL);
     }
@@ -26,7 +41,10 @@ const createShortUrl = async (req, res) => {
   }
 };
 
-const getOriginalUrl = async (req, res) => {
+const getOriginalUrl = async (
+  req: Request<{ shortCode: string }>,
+  res: Response
+): Promise<Response | void> => {
   try {
     const { shortCode } = req.params;
     const result = await updateAccessCounter(shortCode);
@@ -39,17 +57,18 @@ const getOriginalUrl = async (req, res) => {
   }
 };
 
-const checkHealth = async (req, res) => {
+const checkHealth = async (_req: Request, res: Response): Promise<Response | void> => {
   try {
     await check();
     res.status(200).json({ status: "active", database: "connected" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Health check failed:", error);
     res.status(500).json({
       status: "error",
       database: "disconnected",
-      details: error.message,
+      details: error?.message || "Unknown error",
     });
   }
 };
+
 export { createShortUrl, getOriginalUrl, checkHealth };

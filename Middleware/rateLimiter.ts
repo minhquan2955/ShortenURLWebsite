@@ -9,9 +9,8 @@ const limiter = rateLimit({
   legacyHeaders: false, // Disable the old headers.
   ipv6Subnet: 56, // Gom nhóm các IP cùng 1 subnet áp dụng limit
   store: new RedisStore({
-    //lưu trữ số lần đã POST repuest của từng IP trên redis thay vì RAM
-    sendCommand: (...args) => client.sendCommand(args), //chọn redis client để gửi lệnh
-    prefix: "rl:shorten:", // tạo key với từng IP lưu vào redis: rl:shorten:IP
+    sendCommand: (...args: string[]) => client.sendCommand(args),
+    prefix: "rl:shorten:",
   }),
   message: {
     error: "Too many short URLs created! Please try again later.",
