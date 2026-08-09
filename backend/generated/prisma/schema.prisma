@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  email         String         @unique
+  name          String?
+  passwordHash  String? // null if OAuth login
+  provider      String         @default("local") // "local" | "google"
+  providerId    String? // ID from Google
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  urls          Url[]
+  refreshTokens RefreshToken[]
+
+  @@unique([provider, providerId])
+}
+
+model Url {
+  id            String     @id @default(uuid()) @db.Uuid
+  originalURL   String
+  shortCode     String     @unique
+  accessCounter Int        @default(0)
+  isActive      Boolean    @default(true)
+  expiresAt     DateTime? // null = never expires
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  userId        String     @db.Uuid
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clicks        UrlClick[]
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model UrlClick {
+  id         String   @id @default(uuid()) @db.Uuid
+  urlId      String   @db.Uuid
+  url        Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+  clickedAt  DateTime @default(now())
+  ipAddress  String?
+  country    String?
+  city       String?
+  deviceType String? // "desktop" | "mobile" | "tablet"
+  os         String?
+  browser    String?
+  userAgent  String?
+
+  @@index([urlId])
+  @@index([clickedAt])
+  @@index([urlId, clickedAt])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
