@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Link2, QrCode, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import Navbar from "@/components/home/Navbar";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import MetricsSection from "@/components/home/MetricsSection";
 import TestimonialSection from "@/components/home/TestimonialSection";
@@ -14,32 +15,7 @@ export default function Home() {
 
   return (
     <main className="flex-1 flex flex-col min-h-screen">
-      {/* Navbar (Mock for visual completeness based on Bitly) */}
-      <header className="flex items-center justify-between px-[var(--spacing-xl)] py-[var(--spacing-md)] bg-[var(--color-ink)] text-white">
-        <div className="flex items-center gap-[var(--spacing-xl)]">
-          {/* Logo placeholder */}
-          <div className="text-[var(--color-primary)] font-black text-2xl tracking-tighter">
-            ShortenURL
-          </div>
-          <nav className="hidden md:flex gap-[var(--spacing-lg)] text-body-sm-strong text-[var(--color-canvas-soft)]">
-            <Link href="#" className="hover:text-white transition-colors">Platform</Link>
-            <Link href="#" className="hover:text-white transition-colors">Solutions</Link>
-            <Link href="#" className="hover:text-white transition-colors">Pricing</Link>
-            <Link href="#" className="hover:text-white transition-colors">Resources</Link>
-          </nav>
-        </div>
-        <div className="flex items-center gap-[var(--spacing-md)]">
-          <Link href="/login" className="text-body-sm-strong text-[var(--color-canvas-soft)] hover:text-white">
-            Log in
-          </Link>
-          <Link
-            href="/register"
-            className="hidden md:inline-flex items-center justify-center bg-[var(--color-canvas)] text-[var(--color-ink)] px-[var(--spacing-lg)] py-[var(--spacing-sm)] rounded-[var(--radius-pill)] text-body-sm-strong hover:bg-[var(--color-canvas-soft)] transition-colors"
-          >
-            Sign up Free
-          </Link>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Hero Section */}
       <section className="flex-1 bg-[var(--color-ink)] text-white px-[var(--spacing-xl)] pt-[var(--spacing-3xl)] pb-[80px] flex flex-col items-center relative overflow-hidden">

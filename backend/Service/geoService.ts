@@ -16,11 +16,11 @@ const initGeoDb = async (): Promise<void> => {
   try {
     const dbPath = path.join(__dirname, "..", "data", "GeoLite2-City.mmdb");
     reader = await maxmind.open<CityResponse>(dbPath);
-    console.log("✅ GeoLite2-City database loaded");
+    console.log(" GeoLite2-City database loaded");
   } catch (error) {
     console.warn(
       "⚠️  GeoLite2-City.mmdb not found. Geo lookups will return null.",
-      (error as Error).message
+      (error as Error).message,
     );
   }
 };

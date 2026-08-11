@@ -1,7 +1,4 @@
 import prisma from "./prismaClient.js";
-import client from "./redisClient.js";
-
-const CACHE_TTL = 10800; // 3 hours
 
 interface UrlRecord {
   id: string;
@@ -18,7 +15,6 @@ interface UrlRecord {
 interface RedirectResult {
   id: string;
   originalURL: string;
-  fromCached: boolean;
 }
 
 // ─── Create URL ─────────────────────────────────────────────────────
@@ -39,67 +35,16 @@ const createNewUrl = async (
   });
 };
 
-// ─── Get URL for redirect (with cache + expiry check) ───────────────
+// ─── Get URL for redirect (with expiry check) ──────────────────────
 
 const getUrlForRedirect = async (
   shortCode: string
 ): Promise<RedirectResult | null> => {
-  const cacheKey = `cache:url:${shortCode}`;
-
-  // Check cache first
-  const cached = await client.get(cacheKey);
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached) as {
-        id: string;
-        originalURL: string;
-        isActive: boolean;
-        expiresAt: string | null;
-      };
-
-      // Check if expired or inactive
-      if (!parsed.isActive) return null;
-      if (parsed.expiresAt && new Date(parsed.expiresAt) < new Date())
-        return null;
-
-      // Fire-and-forget increment
-      prisma.url
-        .update({
-          where: { shortCode },
-          data: { accessCounter: { increment: 1 } },
-        })
-        .catch((err: Error) =>
-          console.error(`Update counter error: ${err}`)
-        );
-
-      return {
-        id: parsed.id,
-        originalURL: parsed.originalURL,
-        fromCached: true,
-      };
-    } catch {
-      // Invalid cache entry — fall through to DB
-    }
-  }
-
-  // Fallback to DB
   const record = await prisma.url.findUnique({ where: { shortCode } });
 
   if (!record) return null;
   if (!record.isActive) return null;
   if (record.expiresAt && record.expiresAt < new Date()) return null;
-
-  // Cache the record
-  await client.setEx(
-    cacheKey,
-    CACHE_TTL,
-    JSON.stringify({
-      id: record.id,
-      originalURL: record.originalURL,
-      isActive: record.isActive,
-      expiresAt: record.expiresAt?.toISOString() ?? null,
-    })
-  );
 
   // Increment counter
   await prisma.url.update({
@@ -110,7 +55,6 @@ const getUrlForRedirect = async (
   return {
     id: record.id,
     originalURL: record.originalURL,
-    fromCached: false,
   };
 };
 
@@ -163,9 +107,6 @@ const updateUrl = async (
     data,
   });
 
-  // Invalidate cache
-  await client.del(`cache:url:${url.shortCode}`).catch(() => {});
-
   return updated;
 };
 
@@ -177,9 +118,6 @@ const deleteUrl = async (
   if (!url) return false;
 
   await prisma.url.delete({ where: { id } });
-
-  // Invalidate cache
-  await client.del(`cache:url:${url.shortCode}`).catch(() => {});
 
   return true;
 };

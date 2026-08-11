@@ -23,15 +23,18 @@ export default function RegisterPage() {
       const res = await fetch("http://localhost:8000/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // send/receive cookies for refresh token
         body: JSON.stringify({ name, email, password }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.message || "Đăng ký thất bại. Email có thể đã được sử dụng.");
+        throw new Error(data.error || "Đăng ký thất bại. Email có thể đã được sử dụng.");
       }
 
-      router.push("/login?registered=true");
+      // Backend returns accessToken on register too — save and go to dashboard
+      localStorage.setItem("access_token", data.accessToken);
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.message || "Có lỗi xảy ra khi kết nối máy chủ.");
     } finally {

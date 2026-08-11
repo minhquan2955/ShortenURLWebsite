@@ -1,3 +1,6 @@
+import dns from "dns";
+dns.setDefaultResultOrder("ipv4first");
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -18,7 +21,7 @@ app.use(
   cors({
     origin: CORS_ORIGIN,
     credentials: true, // Allow cookies (refresh token)
-  })
+  }),
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -41,7 +44,7 @@ const start = async () => {
   await initGeoDb();
 
   app.listen(PORT, () => {
-    console.log(`🚀 Server is listening on port ${PORT}`);
+    console.log(`Server is listening on port ${PORT}`);
   });
 };
 

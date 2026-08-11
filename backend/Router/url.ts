@@ -6,6 +6,7 @@ import {
   getUrlDetail,
   updateUrl,
   deleteUrl,
+  generateQrCode,
   checkHealth,
 } from "../Controller/urlController.js";
 import {
@@ -32,6 +33,9 @@ router.get("/api/urls", authMiddleware, getUserUrls);
 router.get("/api/urls/:id", authMiddleware, getUrlDetail);
 router.put("/api/urls/:id", authMiddleware, updateUrl);
 router.delete("/api/urls/:id", authMiddleware, deleteUrl);
+
+// QR Code generation
+router.get("/api/urls/:id/qrcode", authMiddleware, generateQrCode);
 
 // Analytics (nested under URL)
 router.get("/api/urls/:id/analytics/summary", authMiddleware, getSummary);

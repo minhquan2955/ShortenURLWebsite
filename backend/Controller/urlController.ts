@@ -173,6 +173,62 @@ const deleteUrl = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// ─── Generate QR Code for existing URL (auth required) ─────────────
+
+const generateQrCode = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const urlId = req.params.id as string;
+    const userId = ((req as any).user as AuthPayload).id;
+
+    const url = await getUrlById(urlId, userId);
+    if (!url) {
+      res.status(404).json({ error: "URL not found" });
+      return;
+    }
+
+    const shortUrl = `${req.protocol}://${req.get("host")}/${url.shortCode}`;
+
+    // QR customisation options from query params
+    const width = parseInt(req.query.size as string) || 300;
+    const darkColor = (req.query.dark as string) || "#000000ff";
+    const lightColor = (req.query.light as string) || "#ffffffff";
+    const format = (req.query.format as string) || "dataurl"; // "dataurl" | "svg"
+
+    if (format === "svg") {
+      const svg = await QRCode.toString(shortUrl, {
+        type: "svg",
+        width,
+        color: { dark: darkColor, light: lightColor },
+        margin: 2,
+      });
+      res.status(200).json({
+        qrCode: svg,
+        format: "svg",
+        shortUrl,
+        originalURL: url.originalURL,
+      });
+    } else {
+      const dataUrl = await QRCode.toDataURL(shortUrl, {
+        width,
+        color: { dark: darkColor, light: lightColor },
+        margin: 2,
+      });
+      res.status(200).json({
+        qrCode: dataUrl,
+        format: "dataurl",
+        shortUrl,
+        originalURL: url.originalURL,
+      });
+    }
+  } catch (error) {
+    console.error("Generate QR Code error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 // ─── Health Check ───────────────────────────────────────────────────
 
 const checkHealth = async (
@@ -199,5 +255,6 @@ export {
   getUrlDetail,
   updateUrl,
   deleteUrl,
+  generateQrCode,
   checkHealth,
 };
